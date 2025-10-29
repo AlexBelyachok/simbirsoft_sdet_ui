@@ -1,3 +1,4 @@
+import allure
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoAlertPresentException
 from .base_page import BasePage
@@ -21,12 +22,15 @@ class ManagerPage(BasePage):
     FIRST_NAME_HEADER = (By.XPATH, "//thead/tr/td[1]/a")
     TABLE_ROWS = (By.XPATH, "//tbody/tr")
     
+    @allure.step("Переход на вкладку 'Add Customer'")
     def go_to_add_customer_tab(self):
         self.click(self.ADD_CUSTOMER_TAB_BUTTON)
 
+    @allure.step("Переход на вкладку 'Customers'")
     def go_to_customers_tab(self):
         self.click(self.CUSTOMERS_TAB_BUTTON)
 
+    @allure.step("Добавление нового клиента: Имя={first_name}, Фамилия={last_name}, Код={post_code}")
     def add_new_customer(self, first_name, last_name, post_code):
         self.send_keys(self.FIRST_NAME_INPUT, first_name)
         self.send_keys(self.LAST_NAME_INPUT, last_name)
@@ -34,6 +38,7 @@ class ManagerPage(BasePage):
         self.click(self.ADD_CUSTOMER_SUBMIT_BUTTON)
         self.accept_alert()
 
+    @allure.step("Подтверждение действия в alert-окне")
     def accept_alert(self):
         try:
             alert = self.driver.switch_to.alert
@@ -41,8 +46,8 @@ class ManagerPage(BasePage):
         except NoAlertPresentException:
             print("Alert не был найден.")
             
+    @allure.step("Получение данных о клиентах из таблицы")
     def get_customers_data(self) -> list[dict]:
-        """Собирает данные всех видимых клиентов из таблицы."""
         rows = self.find_elements(self.TABLE_ROWS)
         customers = []
         for row in rows:
@@ -55,12 +60,15 @@ class ManagerPage(BasePage):
                 })
         return customers
 
+    @allure.step("Сортировка списка клиентов по имени")
     def sort_by_first_name(self):
         self.click(self.FIRST_NAME_HEADER)
 
+    @allure.step("Поиск клиента по запросу: '{query}'")
     def search_customer(self, query):
         self.send_keys(self.CUSTOMER_SEARCH_INPUT, query)
 
+    @allure.step("Удаление клиента с именем: '{first_name}'")
     def delete_customer(self, first_name):
         delete_button_locator = (By.XPATH, f"//td[text()='{first_name}']/following-sibling::td/button")
         self.click(delete_button_locator)
